@@ -1,16 +1,19 @@
 <!DOCTYPE html>
 <html lang="it">
+
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
 <title>Calcolo Orario Lavorativo</title>
 
 <style>
+
 body{
     font-family: Arial, sans-serif;
     background:#f1f5f9;
-    margin:0;
     padding:20px;
+    margin:0;
 }
 
 .container{
@@ -19,11 +22,18 @@ body{
     background:white;
     border-radius:20px;
     padding:20px;
-    box-shadow:0 4px 12px rgba(0,0,0,0.1);
+    box-shadow:0 4px 12px rgba(0,0,0,.1);
 }
 
 h1{
     text-align:center;
+    margin-bottom:8px;
+}
+
+.data{
+    text-align:center;
+    color:#666;
+    font-size:14px;
     margin-bottom:20px;
 }
 
@@ -48,20 +58,20 @@ input{
 }
 
 .card{
-    border-radius:15px;
     padding:15px;
+    border-radius:15px;
     text-align:center;
 }
 
-.green{
+.green-card{
     background:#dcfce7;
 }
 
-.orange{
+.orange-card{
     background:#fef3c7;
 }
 
-.gray{
+.gray-card{
     background:#f8fafc;
 }
 
@@ -70,31 +80,32 @@ input{
     font-weight:bold;
 }
 
+.small{
+    font-size:13px;
+    color:#666;
+}
+
 .section{
     margin-top:20px;
 }
 
-.small{
-    font-size:14px;
-    color:#666;
-}
-
 .positive{
-    color:green;
+    color:#16a34a;
 }
 
 .negative{
-    color:red;
+    color:#dc2626;
 }
 
 .neutral{
-    color:#555;
+    color:#475569;
 }
 
 h3{
-    font-size:16px;
-    margin:15px 0 10px;
+    font-size:15px;
+    margin-bottom:8px;
 }
+
 </style>
 </head>
 
@@ -104,18 +115,24 @@ h3{
 
     <h1>Calcolo Orario Lavorativo</h1>
 
+    <div id="dataOggi" class="data"></div>
+
     <label>Orario di Entrata</label>
-    <input type="time" id="entrata" value="08:30">
+
+    <input
+        id="entrata"
+        type="time"
+        value="08:30">
 
     <div class="grid section">
 
-        <div class="card green">
-            <div class="small">Uscita Standard</div>
+        <div class="card green-card">
+            <div class="small">Uscita standard</div>
             <div id="uscita" class="result">--:--</div>
         </div>
 
-        <div class="card orange">
-            <div class="small">Uscita a Saldo 0</div>
+        <div class="card orange-card">
+            <div class="small">Uscita a saldo 0</div>
             <div id="pareggio" class="result">--:--</div>
         </div>
 
@@ -126,4 +143,157 @@ h3{
         <h3>MGP (ore accumulate)</h3>
 
         <div class="grid">
-            <input type="number" id="mgp
+            <input id="mgpOre" type="number" min="0" value="0" placeholder="Ore">
+            <input id="mgpMin" type="number" min="0" max="59" value="0" placeholder="Minuti">
+        </div>
+
+        <h3>FL (ore da recuperare)</h3>
+
+        <div class="grid">
+            <input id="flOre" type="number" min="0" value="0" placeholder="Ore">
+            <input id="flMin" type="number" min="0" max="59" value="0" placeholder="Minuti">
+        </div>
+
+        <div class="card gray-card section">
+            <div class="small">Differenza MGP - FL</div>
+            <div id="saldo" class="result">+0h 00m</div>
+        </div>
+
+    </div>
+
+</div>
+
+<script>
+
+function formattaOrario(minuti){
+
+    minuti = ((minuti % 1440) + 1440) % 1440;
+
+    const ore = Math.floor(minuti / 60);
+    const min = minuti % 60;
+
+    return String(ore).padStart(2,"0") +
+        ":" +
+        String(min).padStart(2,"0");
+}
+
+function aggiorna(){
+
+    const oggi = new Date();
+
+    const giorni = [
+        "domenica",
+        "lunedì",
+        "martedì",
+        "mercoledì",
+        "giovedì",
+        "venerdì",
+        "sabato"
+    ];
+
+    const mesi = [
+        "gennaio",
+        "febbraio",
+        "marzo",
+        "aprile",
+        "maggio",
+        "giugno",
+        "luglio",
+        "agosto",
+        "settembre",
+        "ottobre",
+        "novembre",
+        "dicembre"
+    ];
+
+    document.getElementById("dataOggi").innerText =
+        giorni[oggi.getDay()] +
+        " " +
+        oggi.getDate() +
+        " " +
+        mesi[oggi.getMonth()] +
+        " " +
+        oggi.getFullYear();
+
+    const entrata =
+        document.getElementById("entrata").value;
+
+    if(!entrata) return;
+
+    const [h,m] =
+        entrata.split(":").map(Number);
+
+    const minutiEntrata =
+        h * 60 + m;
+
+    const minutiLavorativi =
+        oggi.getDay() === 5
+            ? 360
+            : 495;
+
+    const uscitaStandard =
+        minutiEntrata + minutiLavorativi;
+
+    const mgp =
+        Number(document.getElementById("mgpOre").value) * 60 +
+        Number(document.getElementById("mgpMin").value);
+
+    const fl =
+        Number(document.getElementById("flOre").value) * 60 +
+        Number(document.getElementById("flMin").value);
+
+    const saldo =
+        mgp - fl;
+
+    const uscitaPareggio =
+        minutiEntrata +
+        (minutiLavorativi - saldo);
+
+    document.getElementById("uscita").innerText =
+        formattaOrario(uscitaStandard);
+
+    document.getElementById("pareggio").innerText =
+        formattaOrario(uscitaPareggio);
+
+    const saldoElem =
+        document.getElementById("saldo");
+
+    const assoluto =
+        Math.abs(saldo);
+
+    const ore =
+        Math.floor(assoluto / 60);
+
+    const minuti =
+        assoluto % 60;
+
+    saldoElem.innerText =
+        (saldo >= 0 ? "+" : "-") +
+        ore +
+        "h " +
+        String(minuti).padStart(2,"0") +
+        "m";
+
+    saldoElem.className =
+        "result " +
+        (
+            saldo > 0
+                ? "positive"
+                : saldo < 0
+                ? "negative"
+                : "neutral"
+        );
+}
+
+document
+    .querySelectorAll("input")
+    .forEach(el =>
+        el.addEventListener("input", aggiorna)
+    );
+
+aggiorna();
+
+</script>
+
+</body>
+</html>
