@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Calcolo Orario Lavorativo</title>
+
+<style>
+body{
+    font-family: Arial, sans-serif;
+    background:#f1f5f9;
+    margin:0;
+    padding:20px;
+}
+
+.container{
+    max-width:450px;
+    margin:auto;
+    background:white;
+    border-radius:20px;
+    padding:20px;
+    box-shadow:0 4px 12px rgba(0,0,0,0.1);
+}
+
+h1{
+    text-align:center;
+    margin-bottom:20px;
+}
+
+label{
+    display:block;
+    margin-bottom:5px;
+    font-weight:bold;
+}
+
+input{
+    width:100%;
+    box-sizing:border-box;
+    padding:10px;
+    border:1px solid #ccc;
+    border-radius:10px;
+}
+
+.grid{
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    gap:10px;
+}
+
+.card{
+    border-radius:15px;
+    padding:15px;
+    text-align:center;
+}
+
+.green{
+    background:#dcfce7;
+}
+
+.orange{
+    background:#fef3c7;
+}
+
+.gray{
+    background:#f8fafc;
+}
+
+.result{
+    font-size:28px;
+    font-weight:bold;
+}
+
+.section{
+    margin-top:20px;
+}
+
+.small{
+    font-size:14px;
+    color:#666;
+}
+
+.positive{
+    color:green;
+}
+
+.negative{
+    color:red;
+}
+
+.neutral{
+    color:#555;
+}
+
+h3{
+    font-size:16px;
+    margin:15px 0 10px;
+}
+</style>
+</head>
+
+<body>
+
+<div class="container">
+
+    <h1>Calcolo Orario Lavorativo</h1>
+
+    <label>Orario di Entrata</label>
+    <input type="time" id="entrata" value="08:30">
+
+    <div class="grid section">
+
+        <div class="card green">
+            <div class="small">Uscita Standard</div>
+            <div id="uscita" class="result">--:--</div>
+        </div>
+
+        <div class="card orange">
+            <div class="small">Uscita a Saldo 0</div>
+            <div id="pareggio" class="result">--:--</div>
+        </div>
+
+    </div>
+
+    <div class="section">
+
+        <h3>MGP (ore accumulate)</h3>
+
+        <div class="grid">
+            <input type="number" id="mgp
