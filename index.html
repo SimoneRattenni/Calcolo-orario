@@ -1,6 +1,5 @@
 <!DOCTYPE html>
 <html lang="it">
-
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -12,22 +11,22 @@
 body{
     font-family: Arial, sans-serif;
     background:#f1f5f9;
-    padding:20px;
     margin:0;
+    padding:20px;
 }
 
 .container{
     max-width:450px;
     margin:auto;
     background:white;
-    border-radius:20px;
     padding:20px;
+    border-radius:20px;
     box-shadow:0 4px 12px rgba(0,0,0,.1);
 }
 
 h1{
     text-align:center;
-    margin-bottom:8px;
+    margin-bottom:5px;
 }
 
 .data{
@@ -39,8 +38,8 @@ h1{
 
 label{
     display:block;
-    margin-bottom:5px;
     font-weight:bold;
+    margin-bottom:5px;
 }
 
 input{
@@ -58,8 +57,8 @@ input{
 }
 
 .card{
-    padding:15px;
     border-radius:15px;
+    padding:15px;
     text-align:center;
 }
 
@@ -102,8 +101,8 @@ input{
 }
 
 h3{
+    margin:15px 0 8px;
     font-size:15px;
-    margin-bottom:8px;
 }
 
 </style>
@@ -120,8 +119,8 @@ h3{
     <label>Orario di Entrata</label>
 
     <input
-        id="entrata"
         type="time"
+        id="entrata"
         value="08:30">
 
     <div class="grid section">
@@ -132,7 +131,7 @@ h3{
         </div>
 
         <div class="card orange-card">
-            <div class="small">Uscita a saldo 0</div>
+            <div class="small">Uscita a saldo</div>
             <div id="pareggio" class="result">--:--</div>
         </div>
 
@@ -159,6 +158,13 @@ h3{
             <div id="saldo" class="result">+0h 00m</div>
         </div>
 
+        <div class="card gray-card section">
+            <div class="small">Credito utilizzabile oggi (max 1h30)</div>
+            <div id="creditoUtilizzabile" class="result">
+                0h 00m
+            </div>
+        </div>
+
     </div>
 
 </div>
@@ -172,9 +178,9 @@ function formattaOrario(minuti){
     const ore = Math.floor(minuti / 60);
     const min = minuti % 60;
 
-    return String(ore).padStart(2,"0") +
-        ":" +
-        String(min).padStart(2,"0");
+    return String(ore).padStart(2,'0') +
+           ':' +
+           String(min).padStart(2,'0');
 }
 
 function aggiorna(){
@@ -231,9 +237,6 @@ function aggiorna(){
             ? 360
             : 495;
 
-    const uscitaStandard =
-        minutiEntrata + minutiLavorativi;
-
     const mgp =
         Number(document.getElementById("mgpOre").value) * 60 +
         Number(document.getElementById("mgpMin").value);
@@ -242,36 +245,43 @@ function aggiorna(){
         Number(document.getElementById("flOre").value) * 60 +
         Number(document.getElementById("flMin").value);
 
-    const saldo =
-        mgp - fl;
+    const saldo = mgp - fl;
 
-    const uscitaPareggio =
+    const saldoUtilizzabile =
+        saldo > 0
+            ? Math.min(saldo, 90)
+            : saldo;
+
+    const uscitaStandard =
+        minutiEntrata + minutiLavorativi;
+
+    const uscitaSaldo =
         minutiEntrata +
-        (minutiLavorativi - saldo);
+        (minutiLavorativi - saldoUtilizzabile);
 
     document.getElementById("uscita").innerText =
         formattaOrario(uscitaStandard);
 
     document.getElementById("pareggio").innerText =
-        formattaOrario(uscitaPareggio);
+        formattaOrario(uscitaSaldo);
 
     const saldoElem =
         document.getElementById("saldo");
 
-    const assoluto =
+    const abs =
         Math.abs(saldo);
 
     const ore =
-        Math.floor(assoluto / 60);
+        Math.floor(abs / 60);
 
-    const minuti =
-        assoluto % 60;
+    const min =
+        abs % 60;
 
     saldoElem.innerText =
         (saldo >= 0 ? "+" : "-") +
         ore +
         "h " +
-        String(minuti).padStart(2,"0") +
+        String(min).padStart(2,"0") +
         "m";
 
     saldoElem.className =
@@ -283,13 +293,26 @@ function aggiorna(){
                 ? "negative"
                 : "neutral"
         );
+
+    const credito =
+        saldo > 0
+            ? Math.min(saldo,90)
+            : 0;
+
+    document.getElementById(
+        "creditoUtilizzabile"
+    ).innerText =
+        Math.floor(credito/60) +
+        "h " +
+        String(credito%60).padStart(2,"0") +
+        "m";
 }
 
 document
-    .querySelectorAll("input")
-    .forEach(el =>
-        el.addEventListener("input", aggiorna)
-    );
+.querySelectorAll("input")
+.forEach(el =>
+    el.addEventListener("input", aggiorna)
+);
 
 aggiorna();
 
