@@ -238,12 +238,12 @@ function aggiorna(){
             : 495;
 
     const mgp =
-        Number(document.getElementById("mgpOre").value) * 60 +
-        Number(document.getElementById("mgpMin").value);
+        Number(document.getElementById("mgpOre").value||0) * 60 +
+        Number(document.getElementById("mgpMin").value||0);
 
     const fl =
-        Number(document.getElementById("flOre").value) * 60 +
-        Number(document.getElementById("flMin").value);
+        Number(document.getElementById("flOre").value||0) * 60 +
+        Number(document.getElementById("flMin").value||0);
 
     const saldo = mgp - fl;
 
